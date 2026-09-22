@@ -21,6 +21,31 @@ body:before{
   background-size:34px 34px; animation:stars 20s linear infinite;
 }
 @keyframes stars{to{background-position:68px 68px}}
+
+/* Pantalla de Inicio / Bienvenida para activar música */
+.overlay-music {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(21, 19, 47, 0.94);
+  backdrop-filter: blur(15px);
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center; padding: 20px;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+.overlay-music.hidden {
+  opacity: 0; visibility: hidden; pointer-events: none;
+}
+.btn-start {
+  background: linear-gradient(135deg, #e082cb, #8f66d2);
+  color: #fff; border: none; padding: 16px 32px; font-size: 1.1rem;
+  border-radius: 50px; font-family: Comfortaa, sans-serif; font-weight: 600;
+  box-shadow: 0 0 25px rgba(224, 130, 203, 0.6); cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-start:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 35px rgba(224, 130, 203, 0.9);
+}
+
 nav{
   position:fixed; top:12px; left:50%; transform:translateX(-50%);
   width:min(92%,900px); z-index:20; padding:10px 14px;
@@ -95,6 +120,13 @@ footer{text-align:center;padding:50px 20px;background:#0f0d25}
 </head>
 <body>
 
+<!-- Pantalla inicial para habilitar el sonido -->
+<div class="overlay-music" id="overlay">
+  <div class="script" style="font-size: 2.2rem; margin-bottom: 15px; color: #ffe5fb;">Para Solana 💜</div>
+  <p style="margin-bottom: 25px; opacity: 0.9;">Toca el botón para abrir tu regalo con música ✨</p>
+  <button class="btn-start" onclick="startExperience()">Abrir regalo 🎵</button>
+</div>
+
 <nav>
   <a href="#inicio">💜 Inicio</a>
   <a href="#historia">💞 Historia</a>
@@ -159,8 +191,8 @@ footer{text-align:center;padding:50px 20px;background:#0f0d25}
     <div id="disc" class="disc"></div>
     <h3>Cama y Mesa</h3>
     <p>Roberto Carlos</p>
-    <audio id="audio" controls preload="auto">
-      <source src="archivo_00000000e160822f963b.mp3" type="audio/mpeg">
+    <audio id="audio" controls loop preload="auto">
+      <source src="Roberto Carlos - Cama y Mesa (Lyric Video)(MP3_160K)" type="audio/mp3">
     </audio>
     <p class="small" style="margin-top:15px">Nuestra canción especial ♡</p>
   </div>
@@ -194,6 +226,15 @@ footer{text-align:center;padding:50px 20px;background:#0f0d25}
 </footer>
 
 <script>
+const audio = document.getElementById("audio");
+const disc = document.getElementById("disc");
+const overlay = document.getElementById("overlay");
+
+function startExperience() {
+  overlay.classList.add("hidden");
+  audio.play().catch(err => console.log("Error de reproducción:", err));
+}
+
 const start = new Date("2025-09-21T00:00:00");
 
 function updateCounter(){
@@ -213,7 +254,6 @@ function updateCounter(){
 }
 updateCounter(); setInterval(updateCounter,60000);
 
-const audio=document.getElementById("audio"), disc=document.getElementById("disc");
 audio.addEventListener("play",()=>disc.classList.add("playing"));
 audio.addEventListener("pause",()=>disc.classList.remove("playing"));
 
