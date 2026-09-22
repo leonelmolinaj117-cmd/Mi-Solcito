@@ -107,9 +107,44 @@ button,.button{
 }
 button:hover,.button:hover{filter:brightness(1.12)}
 .small{font-size:.78rem;opacity:.8;line-height:1.6}
+
+/* Imagen Ilustración Grande */
+.big-image-card {
+  text-align: center; overflow: hidden; border-radius: 28px; padding: 15px;
+}
+.big-image-card img {
+  width: 100%; max-width: 800px; height: auto; border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  cursor: pointer; transition: transform 0.3s ease;
+}
+.big-image-card img:hover { transform: scale(1.02); }
+
+/* Galería Interactiva */
 .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
-.gallery div{aspect-ratio:1;border-radius:20px;overflow:hidden;background:#ffffff15;border:1px solid #fff3}
-.gallery img{width:100%;height:100%;object-fit:cover}
+.gallery div{aspect-ratio:1;border-radius:20px;overflow:hidden;background:#ffffff15;border:1px solid #fff3;cursor:pointer}
+.gallery img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s ease}
+.gallery div:hover img{transform:scale(1.08)}
+
+/* Modal para ampliar imágenes (Lightbox) */
+.lightbox {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(0,0,0,0.88); backdrop-filter: blur(8px);
+  display: flex; justify-content: center; align-items: center;
+  opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.lightbox.active { opacity: 1; visibility: visible; }
+.lightbox img {
+  max-width: 90vw; max-height: 85vh; border-radius: 16px;
+  box-shadow: 0 0 30px rgba(255,155,234,0.5);
+  transform: scale(0.9); transition: transform 0.3s ease;
+}
+.lightbox.active img { transform: scale(1); }
+.lightbox-close {
+  position: absolute; top: 25px; right: 25px;
+  color: #fff; font-size: 2rem; cursor: pointer; background: rgba(255,255,255,0.2);
+  width: 45px; height: 45px; border-radius: 50%; display: grid; place-items: center;
+}
+
 footer{text-align:center;padding:50px 20px;background:#0f0d25}
 .heart{position:fixed;bottom:-30px;z-index:10;pointer-events:none;animation:float 7s linear forwards}
 @keyframes float{to{transform:translateY(-110vh) rotate(20deg);opacity:0}}
@@ -120,11 +155,17 @@ footer{text-align:center;padding:50px 20px;background:#0f0d25}
 </head>
 <body>
 
-<!-- Pantalla inicial para habilitar el sonido -->
+<!-- Pantalla inicial para habilitar la música -->
 <div class="overlay-music" id="overlay">
   <div class="script" style="font-size: 2.2rem; margin-bottom: 15px; color: #ffe5fb;">Para Solana 💜</div>
   <p style="margin-bottom: 25px; opacity: 0.9;">Toca el botón para abrir tu regalo con música ✨</p>
   <button class="btn-start" onclick="startExperience()">Abrir regalo 🎵</button>
+</div>
+
+<!-- Modal para ver imágenes en pantalla completa -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lightbox-close">&times;</span>
+  <img id="lightbox-img" src="" alt="Imagen ampliada">
 </div>
 
 <nav>
@@ -192,10 +233,18 @@ footer{text-align:center;padding:50px 20px;background:#0f0d25}
     <h3>Cama y Mesa</h3>
     <p>Roberto Carlos</p>
     <audio id="audio" controls loop preload="auto">
-      <source src="Roberto Carlos - Cama y Mesa (Lyric Video)(MP3_160K)" type="audio/mp3">
+      <source src="Roberto Carlos - Cama y Mesa (Lyric Video)(MP3_160K).mp3" type="audio/mpeg">
     </audio>
     <p class="small" style="margin-top:15px">Nuestra canción especial ♡</p>
   </div>
+</div>
+</section>
+
+<!-- Sección para la imagen especial en grande -->
+<section>
+<div class="container card big-image-card reveal">
+  <h2>Especial para vos ✨</h2>
+  <img src="file_00000000e160822f963b1a60b54b3fb4.png" alt="Ilustración Solana" onclick="openLightbox(this.src)">
 </div>
 </section>
 
@@ -203,12 +252,12 @@ footer{text-align:center;padding:50px 20px;background:#0f0d25}
 <div class="container reveal">
   <h2>Pequeños recuerdos 📸</h2>
   <div class="gallery">
-    <div><img src="20251026_210416.jpg" alt="Foto 1"></div>
-    <div><img src="20260515_225338.jpg" alt="Foto 2"></div>
-    <div><img src="20260913_120717.jpg" alt="Foto 3"></div>
-    <div><img src="IMG-20260921-WA0092.jpg" alt="Foto 4"></div>
+    <div><img src="20251026_210416.jpg" alt="Foto 1" onclick="openLightbox(this.src)"></div>
+    <div><img src="20260515_225338.jpg" alt="Foto 2" onclick="openLightbox(this.src)"></div>
+    <div><img src="20260913_120717.jpg" alt="Foto 3" onclick="openLightbox(this.src)"></div>
+    <div><img src="IMG-20260921-WA0092.jpg" alt="Foto 4" onclick="openLightbox(this.src)"></div>
   </div>
-  <p class="small" style="text-align:center;margin-top:18px">Nuestros momentos juntos ♡</p>
+  <p class="small" style="text-align:center;margin-top:18px">Toca cualquier imagen para verla en grande ♡</p>
 </div>
 </section>
 
@@ -229,10 +278,21 @@ footer{text-align:center;padding:50px 20px;background:#0f0d25}
 const audio = document.getElementById("audio");
 const disc = document.getElementById("disc");
 const overlay = document.getElementById("overlay");
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = document.getElementById("lightbox-img");
 
 function startExperience() {
   overlay.classList.add("hidden");
   audio.play().catch(err => console.log("Error de reproducción:", err));
+}
+
+function openLightbox(src) {
+  lightboxImg.src = src;
+  lightbox.classList.add("active");
+}
+
+function closeLightbox() {
+  lightbox.classList.remove("active");
 }
 
 const start = new Date("2025-09-21T00:00:00");
